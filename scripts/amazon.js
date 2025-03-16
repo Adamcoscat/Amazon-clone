@@ -1,4 +1,4 @@
-import {cart} from '../data/cart.js';
+import {cart, saveToStorage} from '../data/cart.js';
 import {products} from '../data/products.js';
 
 let productsHTML = ''
@@ -75,6 +75,8 @@ document.querySelector('.products-grid').innerHTML = productsHTML;
 			quantity: 1
 		})
 		}
+		
+		saveToStorage();
 	}
 	
 	function updateQuantity() {
