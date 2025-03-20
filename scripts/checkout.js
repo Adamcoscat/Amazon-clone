@@ -1,8 +1,8 @@
-import {cart, removeCartItem} from '../data/cart.js';
+import {cart, removeCartItem, updateDeliveryOption} from '../data/cart.js';
 import {products} from '../data/products.js';
 import {hello} from 'https://unpkg.com/supersimpledev@1.0.1/hello.esm.js';
 import dayjs from './dayjs+esm.js';
-import {deliveryOptions} from '../data/deliveryOptions.js'
+import {deliveryOptions} from '../data/deliveryOptions.js';
 const date = dayjs();
 
 let cartSummaryHTML;
@@ -27,14 +27,17 @@ cart.forEach(cartItem => {
 		}
 	})
 	
+
+	
 	const today = dayjs();
 	const deliveryOptionDate = today.add(deliveryOption.deliveryDays, 'days');
 	const dateString = deliveryOptionDate.format('dddd, MMMM D');
 	
 	cartSummaryHTML += `
 		<div class="cart-item-container js-cart-item-container-${matchingItem.id}">
-		<div class="delivery-date">
-              Delivery date: ${dateString}
+		<div class="delivery-date" data-product-id="${matchingItem.id}">
+		
+              Delivery date:  ${dateString}
             </div>
 
             <div class="cart-item-details-grid">
@@ -69,7 +72,7 @@ cart.forEach(cartItem => {
               </div>
             </div>
           </div>
-	`;
+	`; 
 	
 })
 
@@ -91,7 +94,8 @@ function renderDeliveryOptions(matchingItem, cartItem) {
 			: `$${(option.priceCents/100).toFixed('2')}`
 			
 		html += `
-			<div class="delivery-option">
+			<div class="delivery-option" data-product-id="${matchingItem.id}"
+			data-delivery-option-id="${option.id}">
 				<input type="radio" ${isChecked ? 'checked' : ''}
 					class="delivery-option-input"
 					name="delivery-option-${matchingItem.id}">
@@ -117,3 +121,26 @@ document.querySelectorAll('.js-delete-quantity-link').forEach(span => {
 			document.querySelector(`.js-cart-item-container-${productId}`).remove();
 		})
 	})
+	
+	 document.querySelectorAll('.delivery-option').forEach(option => {
+		option.addEventListener('click', () => {
+			
+			const {productId, deliveryOptionId} = option.dataset;
+			const idToFind = deliveryOptionId;
+			const matchingOption = deliveryOptions.find(option => option.id === idToFind);
+			console.log(matchingOption);
+			const newDate = updateDeliveryOption(productId, deliveryOptionId);
+			const today = dayjs();
+			const deliveryOptionDate = today.add(matchingOption.deliveryDays, 'days');
+			const dateString = deliveryOptionDate.format('dddd, MMMM D');
+			document.querySelectorAll('.delivery-date').forEach(date => {
+				const dateId = date.dataset.productId;
+				
+				if (dateId === productId) {
+					date.innerHTML = `Delivery date: ${dateString}`;
+				}
+			})
+			
+			
+		})
+	}) 
