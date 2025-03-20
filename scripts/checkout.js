@@ -1,5 +1,10 @@
 import {cart, removeCartItem} from '../data/cart.js';
 import {products} from '../data/products.js';
+import {hello} from 'https://unpkg.com/supersimpledev@1.0.1/hello.esm.js';
+import dayjs from './dayjs+esm.js';
+import {deliveryOptions} from '../data/deliveryOptions.js'
+const date = dayjs();
+
 let cartSummaryHTML;
 cart.forEach(cartItem => {
 	const productId = cartItem.productId;
@@ -12,11 +17,24 @@ cart.forEach(cartItem => {
 		}
 	})
 	
-	console.log(matchingItem);
+	const deliveryOptionId = cartItem.deliveryOptionId;
+	
+	let deliveryOption;
+	
+	deliveryOptions.forEach(option => {
+		if (deliveryOptionId === option.id) {
+			deliveryOption = option ;
+		}
+	})
+	
+	const today = dayjs();
+	const deliveryOptionDate = today.add(deliveryOption.deliveryDays, 'days');
+	const dateString = deliveryOptionDate.format('dddd, MMMM D');
+	
 	cartSummaryHTML += `
 		<div class="cart-item-container js-cart-item-container-${matchingItem.id}">
 		<div class="delivery-date">
-              Delivery date: Tuesday, June 21
+              Delivery date: ${dateString}
             </div>
 
             <div class="cart-item-details-grid">
@@ -47,45 +65,7 @@ cart.forEach(cartItem => {
                 <div class="delivery-options-title">
                   Choose a delivery option:
                 </div>
-                <div class="delivery-option">
-                  <input type="radio" checked
-                    class="delivery-option-input"
-                    name="delivery-option-${matchingItem.id}">
-                  <div>
-                    <div class="delivery-option-date">
-                      Tuesday, June 21
-                    </div>
-                    <div class="delivery-option-price">
-                      FREE Shipping
-                    </div>
-                  </div>
-                </div>
-                <div class="delivery-option">
-                  <input type="radio"
-                    class="delivery-option-input"
-                    name="delivery-option-${matchingItem.id}">
-                  <div>
-                    <div class="delivery-option-date">
-                      Wednesday, June 15
-                    </div>
-                    <div class="delivery-option-price">
-                      $4.99 - Shipping
-                    </div>
-                  </div>
-                </div>
-                <div class="delivery-option">
-                  <input type="radio"
-                    class="delivery-option-input"
-                    name="delivery-option-${matchingItem.id}">
-                  <div>
-                    <div class="delivery-option-date">
-                      Monday, June 13
-                    </div>
-                    <div class="delivery-option-price">
-                      $9.99 - Shipping
-                    </div>
-                  </div>
-                </div>
+								${renderDeliveryOptions(matchingItem, cartItem)}
               </div>
             </div>
           </div>
@@ -94,6 +74,41 @@ cart.forEach(cartItem => {
 })
 
 document.querySelector('.order-summary').innerHTML = cartSummaryHTML;
+
+function renderDeliveryOptions(matchingItem, cartItem) {
+	
+	let html = '';
+	
+	
+	deliveryOptions.forEach(option => {
+		const isChecked = option.id === cartItem.deliveryOptionId;
+		const today = dayjs();
+		const deliveryOptionDate = today.add(option.deliveryDays, 'days');
+		const dateString = deliveryOptionDate.format('dddd, MMMM D');
+		const priceString = option.priceCents 
+		=== 0
+			? 'FREE'
+			: `$${(option.priceCents/100).toFixed('2')}`
+			
+		html += `
+			<div class="delivery-option">
+				<input type="radio" ${isChecked ? 'checked' : ''}
+					class="delivery-option-input"
+					name="delivery-option-${matchingItem.id}">
+				<div>
+					<div class="delivery-option-date">
+						${dateString}
+					</div>
+					<div class="delivery-option-price">
+						${priceString} Shipping
+					</div>
+				</div>
+			</div>
+		`
+	})
+	
+	return html
+}
 
 document.querySelectorAll('.js-delete-quantity-link').forEach(span => {
 		span.addEventListener('click', () => {
