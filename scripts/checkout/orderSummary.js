@@ -19,7 +19,7 @@ cart.forEach(cartItem => {
 	const dateString = calcDeliveryDate(deliveryOption);
 	
 	cartSummaryHTML += `
-		<div class="cart-item-container js-cart-item-container-${matchingItem.id}">
+		<div class="cart-item-container test-item-container js-cart-item-container-${matchingItem.id}">
 		<div class="delivery-date" data-product-id="${matchingItem.id}">
 		
               Delivery date:  ${dateString}
@@ -36,14 +36,14 @@ cart.forEach(cartItem => {
                 <div class="product-price">
                   $${(matchingItem.priceCents/100).toFixed(2)}
                 </div>
-                <div class="product-quantity">
+                <div class="product-quantity js-product-quantity-${matchingItem.id}">
                   <span>
                     Quantity: <span class="quantity-label">${cartItem.quantity}</span>
                   </span>
                   <span class="update-quantity-link link-primary" data-product-id="${matchingItem.id}">
                     Update
                   </span>
-                  <span data-product-id="${matchingItem.id}" class="js-delete-quantity-link delete-quantity-link link-primary">
+                  <span data-product-id="${matchingItem.id}" class="js-delete-quantity-link js-delete-quantity-link-${matchingItem.id} delete-quantity-link link-primary">
                     Delete
                   </span>
                 </div>
@@ -62,13 +62,13 @@ cart.forEach(cartItem => {
 })
 
 document.querySelector('.order-summary').innerHTML = cartSummaryHTML;
-function updateItems() {
+/*function updateItems() {
 	const cartQuantity = calcCart();
 
 	document.querySelector('.return-to-home-link').innerText = `${cartQuantity} items`
-}
+} */
 
-updateItems();
+//updateItems();
 
 function renderDeliveryOptions(matchingItem, cartItem) {
 	
@@ -108,7 +108,7 @@ document.querySelectorAll('.js-delete-quantity-link').forEach(span => {
 		span.addEventListener('click', () => {
 			const productId = span.dataset.productId;
 			removeCartItem(productId);
-			updateItems();
+			//updateItems();
 			renderOrderSummary();
 			renderPaymentSummary();
 		})
